@@ -19,16 +19,34 @@ import javafx.scene.Parent;
 import java.util.HashSet;
 import java.util.Random;
 
+/**
+ * La clase MenuController controla la lógica de la interfaz de usuario
+ * para el menú principal del juego Sudoku.
+ *
+ * <p> Se encarga de gestionar las acciones del usuario, como iniciar
+ * el juego y mostrar la ayuda, así como la creación y validación del
+ * tablero de Sudoku.</p>
+ */
+
 public class MenuController {
 
     @FXML
     private Button btnStart;
 
     @FXML
-    private Button btnHelp; // Botón de ayuda
+    private Button btnHelp;
 
     private SudokuBoard sudokuBoard = new SudokuBoard();
     private Random random = new Random();
+
+    /**
+     * Maneja la acción del botón "Iniciar Juego".
+     *
+     * <p> Este método se llama cuando el usuario hace clic en el botón
+     * "Iniciar Juego". Se encarga de crear y mostrar el tablero de Sudoku.</p>
+     *
+     * @param event el evento de acción que se dispara al hacer clic en el botón.
+     */
 
     @FXML
     private void handleStartAction(ActionEvent event) {
@@ -49,6 +67,15 @@ public class MenuController {
                 + "\n\n¡Buena suerte!");
         alert.showAndWait();
     }
+
+    /**
+     * Crea y configura el tablero de Sudoku.
+     *
+     * <p> Este método inicializa la interfaz del tablero de Sudoku, creando un
+     * {@link GridPane} que contiene campos de texto para que el usuario ingrese
+     * los números. También se encarga de la lógica de validación para los números
+     * ingresados.</p>
+     */
 
     @FXML
     private void crearTableroSudoku() {
@@ -90,9 +117,9 @@ public class MenuController {
                     if (!newValue.isEmpty()) {
                         int num = Integer.parseInt(newValue);
                         if (num < 1 || num > 6 || !sudokuBoard.placeNumber(currentRow, currentCol, num)) {
-                            textField.setStyle("-fx-background-color: lightcoral;"); // Número inválido
+                            textField.setStyle("-fx-background-color: lightcoral;");
                         } else {
-                            textField.setStyle("-fx-background-color: transparent;"); // Número válido
+                            textField.setStyle("-fx-background-color: transparent;");
                         }
                     } else {
                         textField.setStyle("-fx-background-color: transparent;");
@@ -104,25 +131,22 @@ public class MenuController {
             }
         }
 
-        // Llenar cada bloque de 2x3 con números únicos
         for (int blockRow = 0; blockRow < 3; blockRow++) {
             for (int blockCol = 0; blockCol < 2; blockCol++) {
                 HashSet<Integer> numbers = new HashSet<>();
                 while (numbers.size() < 2) {
-                    numbers.add(random.nextInt(6) + 1); // Genera números entre 1 y 6
+                    numbers.add(random.nextInt(6) + 1);
                 }
                 int[] numsToPlace = numbers.stream().mapToInt(Number::intValue).toArray();
                 int index = 0;
 
-                // Intentar colocar los números sin violar las reglas de Sudoku
                 for (int row = blockRow * 2; row < blockRow * 2 + 2; row++) {
                     for (int col = blockCol * 3; col < blockCol * 3 + 3; col++) {
                         if (index < numsToPlace.length) {
-                            // Verificar si se puede colocar el número sin repetición
                             if (isPlacementValid(row, col, numsToPlace[index])) {
                                 TextField textField = (TextField) ((StackPane) gridPane.getChildren().get(row * 6 + col)).getChildren().get(0);
-                                textField.setText(String.valueOf(numsToPlace[index])); // Coloca el número aleatorio
-                                sudokuBoard.placeNumber(row, col, numsToPlace[index]); // Actualiza la lógica del tablero
+                                textField.setText(String.valueOf(numsToPlace[index]));
+                                sudokuBoard.placeNumber(row, col, numsToPlace[index]);
                                 index++;
                             }
                         }
@@ -161,6 +185,16 @@ public class MenuController {
         stage.setTitle("Sudoku 6x6 - Juego");
     }
 
+    /**
+     * Verifica si un número se puede colocar en una celda sin violar las reglas
+     * del Sudoku.
+     *
+     * @param row la fila en la que se desea colocar el número.
+     * @param col la columna en la que se desea colocar el número.
+     * @param num el número a colocar.
+     * @return {@code true} si la colocación es válida; {@code false} de lo contrario.
+     */
+
     private boolean isPlacementValid(int row, int col, int num) {
         // Verificar fila
         for (int c = 0; c < sudokuBoard.getGridSize(); c++) {
@@ -173,6 +207,13 @@ public class MenuController {
         return true;
     }
 
+    /**
+     * Sugiere un número para una celda vacía en el tablero de Sudoku.
+     *
+     * @param sudokuBoard el tablero de Sudoku actual.
+     * @param gridPane el {@link GridPane} que contiene las celdas del tablero.
+     */
+
     private void sugerirNumero(SudokuBoard sudokuBoard, GridPane gridPane) {
         for (int row = 0; row < sudokuBoard.getGridSize(); row++) {
             for (int col = 0; col < sudokuBoard.getGridSize(); col++) {
@@ -183,7 +224,7 @@ public class MenuController {
                             TextField suggestedField = (TextField) cellPane.getChildren().get(0);
                             suggestedField.setStyle("-fx-background-color: lightblue;");
                             suggestedField.setText(String.valueOf(num));
-                            return; // Solo sugerir un número
+                            return;
                         }
                     }
                 }

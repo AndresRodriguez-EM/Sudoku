@@ -1,0 +1,133 @@
+package sample;
+
+import java.util.Random;
+
+/**
+ * Representa un tablero de Sudoku de 6x6.
+ * Esta clase se encarga de generar el tablero, validar movimientos
+ * y proporcionar acceso a la matriz que representa el estado del juego.
+ */
+public class SudokuBoard {
+    private int[][] board;
+    private static final int SIZE = 6;
+    private static final int SUBGRID_ROWS = 2;
+    private static final int SUBGRID_COLS = 3;
+
+    /**
+     * Constructor que inicializa un nuevo tablero de Sudoku y lo genera.
+     */
+    public SudokuBoard() {
+        board = new int[SIZE][SIZE];
+        generateBoard();
+    }
+
+    /**
+     * Genera un tablero de Sudoku vacío y lo llena con números válidos.
+     * Llama al método {@link #fillBoard(int, int)} para realizar el llenado.
+     */
+    private void generateBoard() {
+        // Inicializa el tablero vacío
+        for (int i = 0; i < SIZE; i++) {
+            for (int j = 0; j < SIZE; j++) {
+                board[i][j] = 0;
+            }
+        }
+
+        // Lógica para llenar el tablero de Sudoku
+        fillBoard(0, 0);
+    }
+
+    /**
+     * Llena el tablero usando un algoritmo de backtracking.
+     *
+     * @param row La fila actual que se está llenando.
+     * @param col La columna actual que se está llenando.
+     * @return true si el tablero se llenó correctamente, false en caso contrario.
+     */
+    private boolean fillBoard(int row, int col) {
+        if (row == SIZE) {
+            return true; // Si llegamos al final, el tablero está completo
+        }
+
+        int nextRow = (col == SIZE - 1) ? row + 1 : row;
+        int nextCol = (col == SIZE - 1) ? 0 : col + 1;
+
+        // Prueba con números del 1 al 6
+        Random rand = new Random();
+        int[] numbers = {1, 2, 3, 4, 5, 6};
+        shuffleArray(numbers); // Mezcla los números para mayor aleatoriedad
+
+        for (int num : numbers) {
+            if (isValidMove(row, col, num)) {
+                board[row][col] = num;
+                if (fillBoard(nextRow, nextCol)) {
+                    return true;
+                }
+                board[row][col] = 0; // Revertir si no se pudo llenar
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Mezcla un arreglo usando el algoritmo Fisher-Yates.
+     *
+     * @param array El arreglo a mezclar.
+     */
+    private void shuffleArray(int[] array) {
+        Random rand = new Random();
+        for (int i = array.length - 1; i > 0; i--) {
+            int j = rand.nextInt(i + 1);
+            int temp = array[i];
+            array[i] = array[j];
+            array[j] = temp;
+        }
+    }
+
+    /**
+     * Verifica si un número puede colocarse en la posición dada.
+     *
+     * @param row La fila donde se desea colocar el número.
+     * @param col La columna donde se desea colocar el número.
+     * @param value El número que se desea colocar.
+     * @return true si el movimiento es válido, false en caso contrario.
+     */
+    public boolean isValidMove(int row, int col, int value) {
+        // Verificar fila
+        for (int j = 0; j < SIZE; j++) {
+            if (board[row][j] == value) {
+                return false;
+            }
+        }
+
+        // Verificar columna
+        for (int i = 0; i < SIZE; i++) {
+            if (board[i][col] == value) {
+                return false;
+            }
+        }
+
+        // Verificar bloque de 2x3
+        int blockRow = (row / SUBGRID_ROWS) * SUBGRID_ROWS;
+        int blockCol = (col / SUBGRID_COLS) * SUBGRID_COLS;
+        for (int i = blockRow; i < blockRow + SUBGRID_ROWS; i++) {
+            for (int j = blockCol; j < blockCol + SUBGRID_COLS; j++) {
+                if (board[i][j] == value) {
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Devuelve el tablero de Sudoku actual.
+     *
+     * @return La matriz que representa el tablero de Sudoku.
+     */
+    public int[][] getBoard() {
+        return board;
+    }
+}
